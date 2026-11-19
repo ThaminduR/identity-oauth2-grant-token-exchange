@@ -859,7 +859,7 @@ public class TokenExchangeGrantHandlerTest {
     }
 
     @Test(description = "An error response, e.g. from a failed pre issue access token action, is returned as it is")
-    public void testIssueReturnsErrorResponseWithoutCachingUserAttributes() throws Exception {
+    public void testCompleteTokenResponseReturnsErrorResponseWithoutCachingUserAttributes() throws Exception {
 
         OAuth2AccessTokenRespDTO errorResponse = new OAuth2AccessTokenRespDTO();
         errorResponse.setError(true);
@@ -867,7 +867,7 @@ public class TokenExchangeGrantHandlerTest {
         errorResponse.setErrorMsg("Not entitled");
 
         try (MockedStatic<ClaimsUtil> claimsUtil = mockStatic(ClaimsUtil.class)) {
-            OAuth2AccessTokenRespDTO response = issueWithResponse(errorResponse);
+            OAuth2AccessTokenRespDTO response = completeTokenResponse(errorResponse);
 
             Assert.assertSame(response, errorResponse);
             Assert.assertEquals(response.getErrorCode(), "access_denied");
@@ -877,13 +877,13 @@ public class TokenExchangeGrantHandlerTest {
     }
 
     @Test(description = "A successful response caches the user attributes and carries the issued token type")
-    public void testIssueCachesUserAttributesForIssuedToken() throws Exception {
+    public void testCompleteTokenResponseCachesUserAttributesForIssuedToken() throws Exception {
 
         OAuth2AccessTokenRespDTO tokenResponse = new OAuth2AccessTokenRespDTO();
         tokenResponse.setAccessToken("access-token");
 
         try (MockedStatic<ClaimsUtil> claimsUtil = mockStatic(ClaimsUtil.class)) {
-            OAuth2AccessTokenRespDTO response = issueWithResponse(tokenResponse);
+            OAuth2AccessTokenRespDTO response = completeTokenResponse(tokenResponse);
 
             Assert.assertSame(response, tokenResponse);
             Assert.assertTrue(response.getParameters().containsKey(Constants.TokenExchangeConstants.ISSUED_TOKEN_TYPE));
@@ -891,7 +891,7 @@ public class TokenExchangeGrantHandlerTest {
         }
     }
 
-    private OAuth2AccessTokenRespDTO issueWithResponse(OAuth2AccessTokenRespDTO issuedResponse) throws Exception {
+    private OAuth2AccessTokenRespDTO completeTokenResponse(OAuth2AccessTokenRespDTO issuedResponse) throws Exception {
 
         AuthenticatedUser user = new AuthenticatedUser();
         user.setFederatedUser(true);
